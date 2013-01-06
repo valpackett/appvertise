@@ -104,7 +104,7 @@ class Worker
   end
 
   def self.work
-    last_ad = AdRepository.all.select { |a| a.is_posted }.sort_by { |a| a.updated_at }.last
+    last_ad = AdRepository.last_posted_ad
     if last_ad
       if last_ad.paid_through < Time.now
         pay_rewards last_ad

@@ -28,6 +28,10 @@ end
 class AdRepository
   include Curator::Repository
   indexed_fields :owner_adn_id, :adn_id
+
+  def self.last_posted_ad
+    all.select { |a| a.is_posted }.sort_by { |a| a.updated_at }.last
+  end
 end
 
 
