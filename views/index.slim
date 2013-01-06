@@ -1,0 +1,88 @@
+.row-fluid
+  .span6
+    h1 Advertise
+    p One hour costs #{ENV['BTC_PER_HOUR']} BTC.
+    - if @ads.length > 0
+      h2 Your ads
+      - @ads.each do |a|
+        .media.clearfix
+          a.pull-left href=a.url
+            img.media-object src=a.img alt="image"
+          .media-body
+            a href=a.url =a.txt
+            br
+            br
+            p
+              - if a.is_posted
+                p The ad has been posted!
+              - elsif a.balance > 0.0
+                p The ad has been paid for #{(a.balance / ENV['BTC_PER_HOUR'].to_f * 60).round} minutes!
+                p To pay for more time, send money to the Bitcoin address: #{a.btc_adr}
+              - else
+                strong To publish the ad, send money to the Bitcoin address: #{a.btc_adr}
+                br
+                | Or, 
+                a href="/ads/#{a.id}/delete" delete the ad
+    h2 Create an ad
+    form.form-horizontal method="post" action="/ads" enctype="multipart/form-data"
+      == Rack::Csrf.tag env
+      .control-group
+        label.control-label for="txt" Text
+        .controls
+          textarea id="txt" name="txt" required="required" maxlength="255"
+      .control-group
+        label.control-label for="url" URL
+        .controls
+          input id="url" name="url" type="url" required="required" maxlength="128"
+      .control-group
+        label.control-label for="img" Image
+        .controls
+          input id="img" name="img" type="file" required="required"
+          span.help-block png, jpeg or gif, 130 by 100 pixels
+      .form-actions
+        .btn-group
+          button.btn.btn-primary type="submit" Create!
+  .span6
+    h1 Earn money
+    - if @keys.length > 0
+      h2 Your keys
+      table.table.table-striped.table-condensed
+        thead
+          tr
+            th Name
+            th Key
+            th Balance
+            th
+        tbody
+          - @keys.each do |k|
+            tr
+              td= k.name
+              td= k.id
+              td= k.balance.round(4)
+              td
+                - if k.balance == 0.0
+                  a href="/keys/#{k.id}/delete"
+                    i.icon-remove
+      p Total balance: #{@balance.round(4)} BTC.
+      - unless @balance >= 0.01
+        p You must earn at least 0.01 BTC to withdraw money.
+      - else
+        p All transactions include a 0.0005 BTC miners fee.
+        form method="post" action="/fuck_you_pay_me"
+          == Rack::Csrf.tag env
+          .input-append
+            input name="adr" type="text" placeholder="bitcoin address" required="required"
+            button.btn type="submit" Send money
+    - unless @keys.length >= 10
+      h2 Create a key
+      form.form-horizontal method="post" action="/keys"
+        == Rack::Csrf.tag env
+        .control-group
+          label.control-label for="name" Name
+          .controls
+            input type="text" name="name" required="required" maxlength="128"
+        .form-actions
+          .btn-group
+            button.btn.btn-primary type="submit" Create!
+    - else
+      p You already have 10 keys. Did you really develop this many apps? Delete some first.
