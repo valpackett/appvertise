@@ -19,7 +19,9 @@ enable :sessions
 set :session_secret, ENV['SECRET_KEY'] || 'aaaaa'
 set :server, :thin
 set :port, 8080
+set :markdown, :layout_engine => :slim
 use Rack::Session::Cookie
+#use Rack::Csrf
 use OmniAuth::Builder do
   provider :appdotnet, ENV['ADN_ID'], ENV['ADN_SECRET'], :scope => 'write_post'
 end
@@ -54,6 +56,10 @@ get '/' do
   else
     slim :landing
   end
+end
+
+get '/docs' do
+  markdown :docs
 end
 
 post '/fuck_you_pay_me' do

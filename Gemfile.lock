@@ -71,6 +71,7 @@ GEM
       rack
     rack_csrf (2.4.0)
       rack (>= 0.9)
+    redcarpet (2.2.2)
     riak-client (1.1.0)
       beefcake (~> 0.3.7)
       builder (>= 2.1.2)
@@ -122,6 +123,7 @@ DEPENDENCIES
   omniauth
   omniauth-appdotnet
   rack_csrf
+  redcarpet
   rspec
   rufus-scheduler
   shotgun
