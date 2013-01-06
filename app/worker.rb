@@ -85,9 +85,7 @@ class Worker
   end
 
   def self.post_new_ad
-    ad = AdRepository.all.select { |a|
-      !a.balance.nil? and a.balance > 0.0 and !a.is_posted
-    }.sort_by { |a| a.updated_at }.first
+    ad = AdRepository.earliest_unposted_paid_ad
     unless ad.nil?
       puts "Posting ad #{ad.id}"
       paid_through = calculate_paid_through ad.balance

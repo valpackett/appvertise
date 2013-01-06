@@ -29,6 +29,12 @@ class AdRepository
   include Curator::Repository
   indexed_fields :owner_adn_id, :adn_id
 
+  def self.earliest_unposted_paid_ad
+    all.select { |a|
+      !a.balance.nil? and a.balance > 0.0 and !a.is_posted
+    }.sort_by { |a| a.updated_at }.first
+  end
+
   def self.last_posted_ad
     all.select { |a| a.is_posted }.sort_by { |a| a.updated_at }.last
   end
