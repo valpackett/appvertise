@@ -72,15 +72,17 @@ class Worker
 
   def self.pay_rewards(ad)
     to_pay = ad.balance.cut_percents PERCENT_CUT
-    puts "Paying #{to_pay} of #{ad.balance} BTC for ad #{ad.id}"
     replies = valid_replies ad.adn_id
     clicks = count_clicks replies
-    total_clicks = clicks.values.reduce { |a, b| a + b }
-    click_cost = to_pay / total_clicks
-    clicks.each do |id, clicks|
-      key = KeyRepository.find_by_id id
-      key.balance += click_cost * clicks
-      KeyRepository.save key
+    unless clicks.empty?
+      puts "Paying #{to_pay} of #{ad.balance} BTC for ad #{ad.id}"
+      total_clicks = clicks.values.reduce { |a, b| a + b }
+      click_cost = to_pay / total_clicks
+      clicks.each do |id, clicks|
+        key = KeyRepository.find_by_id id
+        key.balance += click_cost * clicks
+        KeyRepository.save key
+      end
     end
   end
 

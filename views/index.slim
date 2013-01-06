@@ -14,10 +14,11 @@
             br
             p
               - if a.is_posted
-                p The ad has been posted!
+                p The ad has been posted. Thank you for using Appvertise!
               - elsif a.balance > 0.0
                 p The ad has been paid for #{(a.balance / ENV['BTC_PER_HOUR'].to_f * 60).round} minutes!
                 p To pay for more time, send money to the Bitcoin address: #{a.btc_adr}
+                p It will go live on #{a.live_time.to_s}
               - else
                 strong To publish the ad, send money to the Bitcoin address: #{a.btc_adr}
                 br
