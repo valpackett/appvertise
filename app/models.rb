@@ -22,7 +22,7 @@ end
 
 class Ad
   include Curator::Model
-  attr_accessor :id, :adn_id, :owner_adn_id, :btc_adr, :txt, :url, :img, :is_posted, :balance, :transactions
+  attr_accessor :id, :adn_id, :owner_adn_id, :btc_adr, :txt, :url, :img, :is_posted, :balance, :transactions, :paid_through
 end
 
 class AdRepository

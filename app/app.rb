@@ -97,6 +97,7 @@ end
 
 get '/keys/:id/delete' do
   KeyRepository.delete(KeyRepository.find_by_id params[:id])
+  flash[:message] = 'Successfully deleted your key.'
   redirect '/'
 end
 # }}}
@@ -118,6 +119,7 @@ end
 
 get '/ads/:id/delete' do
   AdRepository.delete(AdRepository.find_by_id params[:id])
+  flash[:message] = 'Successfully deleted your ad.'
   redirect '/'
 end
 # }}}
