@@ -57,6 +57,7 @@ GEM
       jwt (~> 0.1.4)
       multi_json (~> 1.0)
       rack (~> 1.2)
+    oj (2.0.0)
     omniauth (1.1.1)
       hashie (~> 1.2)
       rack
@@ -120,6 +121,7 @@ DEPENDENCIES
   faraday_middleware
   fastimage
   mongo (= 1.6.0)
+  oj
   omniauth
   omniauth-appdotnet
   rack_csrf
