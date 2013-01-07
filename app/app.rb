@@ -4,7 +4,8 @@ require 'rack/csrf'
 require 'omniauth'
 require 'omniauth-appdotnet'
 require 'slim'
-require_relative 'oauth2.rb'
+require_relative 'adn.rb'
+require_relative 'blockchain.rb'
 require_relative 'models.rb'
 require_relative 'helpers.rb'
 require_relative 'validator.rb'
@@ -64,7 +65,7 @@ end
 
 post '/fuck_you_pay_me' do
   keys = KeyRepository.find_by_owner_adn_id @me['id']
-  result = pay_bitcoins total(keys), params[:adr]
+  result = Blockchain.pay total(keys), params[:adr]
   if result['error'].nil?
     keys.each do |k|
       k.balance = 0.0
@@ -115,7 +116,7 @@ post '/ads' do
     ad = Ad.new :owner_adn_id => @me['id'], :txt => params[:txt], :url => params[:url],
                 :img => upload(params[:img]), :is_posted => false, :balance => 0.0
     AdRepository.save ad
-    ad.btc_adr = bitcoin_recv_adr(ad.id.to_s)
+    ad.btc_adr = Blockchain.new_receive_address ad.id.to_s
     AdRepository.save ad
   rescue ValidationException => e
     flash[:error] = e.message
