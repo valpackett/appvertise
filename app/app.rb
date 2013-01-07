@@ -4,6 +4,7 @@ require 'rack/csrf'
 require 'omniauth'
 require 'omniauth-appdotnet'
 require 'slim'
+require_relative 's3.rb'
 require_relative 'adn.rb'
 require_relative 'blockchain.rb'
 require_relative 'models.rb'
@@ -114,7 +115,7 @@ post '/ads' do
   begin
     Validator.valid_ad? params
     ad = Ad.new :owner_adn_id => @me['id'], :txt => params[:txt], :url => params[:url],
-                :img => upload(params[:img]), :is_posted => false, :balance => 0.0
+                :img => S3.upload(params[:img]), :is_posted => false, :balance => 0.0
     AdRepository.save ad
     ad.btc_adr = Blockchain.new_receive_address ad.id.to_s
     AdRepository.save ad
