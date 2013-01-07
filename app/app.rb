@@ -27,7 +27,7 @@ use OmniAuth::Builder do
 end
 
 before do
-  @adn = adn session[:token]
+  @adn = ADN.new session[:token]
   unless session[:token].nil?
     @me = @adn.get('users/me').body['data']
   end

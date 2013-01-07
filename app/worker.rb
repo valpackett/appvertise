@@ -3,7 +3,7 @@ require_relative 'oauth2.rb'
 require_relative 'models.rb'
 require_relative 'const.rb'
 
-$ads_adn = adn ENV['ADN_TOKEN']
+$ads_adn = ADN.new ENV['ADN_TOKEN']
 
 class Numeric
   def cut_percents(p)
