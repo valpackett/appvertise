@@ -3,8 +3,6 @@ require_relative 'adn.rb'
 require_relative 'models.rb'
 require_relative 'const.rb'
 
-$ads_adn = ADN.new ENV['ADN_TOKEN']
-
 class Numeric
   def cut_percents(p)
     self - (self / 100 * p)
@@ -12,6 +10,10 @@ class Numeric
 end
 
 class Worker
+  def self.initialize
+    @adn = ADN.new ENV['ADN_TOKEN']
+  end
+
   def self.ann(post)
     p = post['annotations'].select { |a| a['type'] == ANN_TYPE }.first
     p['value'] unless p.nil?
@@ -23,7 +25,7 @@ class Worker
   end
 
   def self.valid_replies(id)
-    $ads_adn.get_replies(id, nil).select { |p| p['machine_only'] == true and !p['annotations'].nil? }
+    @adn.get_replies(id, nil).select { |p| p['machine_only'] == true and !p['annotations'].nil? }
   end
 
   def self.calculate_paid_through(balance)
@@ -79,7 +81,7 @@ class Worker
     unless ad.nil?
       puts "Posting ad #{ad.id}"
       paid_through = calculate_paid_through ad.balance
-      post = $ads_adn.new_post :text => "#{ad.txt.slice 0, (255-ad.url.length)} #{ad.url}", :annotations => [{
+      post = @adn.new_post :text => "#{ad.txt.slice 0, (255-ad.url.length)} #{ad.url}", :annotations => [{
         :type => ANN_TYPE,
         :value => { :text => ad.txt, :url => ad.url, :img => ad.img, :paid_through => paid_through.to_s }
       }]

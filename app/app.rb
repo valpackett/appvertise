@@ -8,7 +8,6 @@ require_relative 's3.rb'
 require_relative 'adn.rb'
 require_relative 'blockchain.rb'
 require_relative 'models.rb'
-require_relative 'helpers.rb'
 require_relative 'validator.rb'
 require_relative 'worker.rb'
 
