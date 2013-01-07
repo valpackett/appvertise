@@ -28,6 +28,12 @@ use OmniAuth::Builder do
   provider :appdotnet, ENV['ADN_ID'], ENV['ADN_SECRET'], :scope => 'write_post'
 end
 
+helpers do
+  def total(keys)
+    keys.map { |k| k.balance }.reduce { |a, b| a + b }
+  end
+end
+
 before do
   @adn = ADN.new session[:token]
   unless session[:token].nil?
