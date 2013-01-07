@@ -29,7 +29,7 @@ end
 before do
   @adn = ADN.new session[:token]
   unless session[:token].nil?
-    @me = @adn.get('users/me').body['data']
+    @me = @adn.me
   end
 end
 

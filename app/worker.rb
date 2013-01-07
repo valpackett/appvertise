@@ -22,20 +22,8 @@ class Worker
     p['value'] unless p.nil?
   end
 
-  def self.get_replies(post_id, before_id)
-    rsp = $ads_adn.get("posts/#{post_id}/replies", :count => 200,
-                       :include_machine => 1, :include_post_annotations => 1,
-                       :before_id => before_id).body
-    replies = rsp['data']
-    if rsp['meta']['more']
-      get_replies(post_id, rsp['meta']['min_id']) + replies
-    else
-      replies
-    end
-  end
-
   def self.valid_replies(id)
-    get_replies(id, nil).select { |p| p['machine_only'] == true and !p['annotations'].nil? }
+    $ads_adn.get_replies(id, nil).select { |p| p['machine_only'] == true and !p['annotations'].nil? }
   end
 
   def self.calculate_paid_through(balance)
@@ -91,7 +79,7 @@ class Worker
     unless ad.nil?
       puts "Posting ad #{ad.id}"
       paid_through = calculate_paid_through ad.balance
-      post = $ads_adn.post 'posts', :text => "#{ad.txt.slice 0, (255-ad.url.length)} #{ad.url}", :annotations => [{
+      post = $ads_adn.new_post :text => "#{ad.txt.slice 0, (255-ad.url.length)} #{ad.url}", :annotations => [{
         :type => ANN_TYPE,
         :value => { :text => ad.txt, :url => ad.url, :img => ad.img, :paid_through => paid_through.to_s }
       }]
