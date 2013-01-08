@@ -1,11 +1,14 @@
 require 'faraday'
 
 class Blockchain
-  def self.initialize
-    @api = Faraday.new(:url => 'https://blockchain.info/') do |b|
-      b.request  :url_encoded
-      b.response :json, :content_type => /\bjson$/
-      b.adapter  Faraday.default_adapter
+  class << self
+    attr_accessor :host
+    def initialize
+      @api = Faraday.new(:url => 'https://blockchain.info/') do |b|
+        b.request  :url_encoded
+        b.response :json, :content_type => /\bjson$/
+        b.adapter  Faraday.default_adapter
+      end
     end
   end
 
@@ -13,7 +16,7 @@ class Blockchain
     api.get('api/receive',
             :method => 'create',
             :address => ENV['BTC_ADR'],
-            :callback => "http://#{request.host}/btc/callback?id=#{id}").body['input_address']
+            :callback => "http://#{@host}/btc/callback?id=#{id}").body['input_address']
   end
 
   def self.pay(amount, adr)

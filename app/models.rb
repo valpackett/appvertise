@@ -22,7 +22,8 @@ end
 
 class Ad
   include Curator::Model
-  attr_accessor :id, :adn_id, :owner_adn_id, :btc_adr, :txt, :url, :img, :is_posted, :balance, :transactions, :paid_through
+  attr_accessor :id, :adn_id, :owner_adn_id, :btc_adr, :txt, :url, :img,
+    :is_posted, :balance, :transactions, :paid_through, :clicks
 
   def live_time
     l = AdRepository.last_posted_ad

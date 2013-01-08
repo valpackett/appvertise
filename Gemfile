@@ -29,5 +29,7 @@ gem "rufus-scheduler"
 
 group :development, :test do
   gem "rspec"
+  gem "rack-test"
+  gem "timecop"
   gem "shotgun"
 end

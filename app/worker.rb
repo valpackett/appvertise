@@ -10,8 +10,12 @@ class Numeric
 end
 
 class Worker
-  def self.initialize
-    @adn = ADN.new ENV['ADN_TOKEN']
+  class << self
+    attr_accessor :host
+
+    def initialize
+      @adn = ADN.new ENV['ADN_TOKEN']
+    end
   end
 
   def self.ann(post)
@@ -19,51 +23,20 @@ class Worker
     p['value'] unless p.nil?
   end
 
-  def self.click_ann(post)
-    p = post['annotations'].select { |a| a['type'] == CLICK_ANN_TYPE }.first
-    p['value'] unless p.nil?
-  end
-
-  def self.valid_replies(id)
-    @adn.get_replies(id, nil).select { |p| p['machine_only'] == true and !p['annotations'].nil? }
-  end
-
   def self.calculate_paid_through(balance)
     # Time + Numeric adds seconds
     Time.now + (balance / ENV['BTC_PER_HOUR'].to_f * 60 * 60)
   end
 
-  def self.valid_click?(new_time, times)
-    # Time - Time returns seconds
-    # using .abs means we don't have to care about order
-    times.map { |t| (t - new_time).abs >= 30 * 60 }.all?
-  end
-
-  def self.count_clicks(replies)
-    clicks = {}
-    # To validate clicks, clicks is key => sender_id => click times
-    replies.each do |p|
-      a = click_ann p
-      unless a.nil?
-        key = a['key']
-        sender_id = p['user']['id']
-        time = DateTime.parse(p['created_at']).to_time
-        clicks[key] ||= {}
-        clicks[key][sender_id] ||= []
-        clicks[key][sender_id] << time if valid_click? time, clicks[key][sender_id]
-      end
+  def self.count_clicks(ad)
+    ad.clicks.each do |k, v|
+      clicks[k] = v.values.length
     end
-    # Don't need to store times anymore, make clicks just key => click count
-    clicks.each do |k, v|
-      clicks[k] = v.values.flatten.length
-    end
-    clicks
   end
 
   def self.pay_rewards(ad)
     to_pay = ad.balance.cut_percents PERCENT_CUT
-    replies = valid_replies ad.adn_id
-    clicks = count_clicks replies
+    clicks = count_clicks ad
     unless clicks.empty?
       puts "Paying #{to_pay} of #{ad.balance} BTC for ad #{ad.id}"
       total_clicks = clicks.values.reduce { |a, b| a + b }
@@ -83,7 +56,7 @@ class Worker
       paid_through = calculate_paid_through ad.balance
       post = @adn.new_post :text => "#{ad.txt.slice 0, (255-ad.url.length)} #{ad.url}", :annotations => [{
         :type => ANN_TYPE,
-        :value => { :text => ad.txt, :url => ad.url, :img => ad.img, :paid_through => paid_through.to_s }
+        :value => { :text => ad.txt, :url => "http://#{@host}/ads/#{ad.id}/click", :img => ad.img, :paid_through => paid_through.to_s }
       }]
       ad.paid_through = paid_through
       ad.adn_id = post.body['data']['id']
@@ -101,7 +74,7 @@ class Worker
         AdRepository.delete last_ad
         post_new_ad
       end
-    else # First ad of the account
+    else
       post_new_ad
     end
   end

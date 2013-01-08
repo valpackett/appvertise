@@ -4,6 +4,7 @@ require 'rack/csrf'
 require 'omniauth'
 require 'omniauth-appdotnet'
 require 'slim'
+require 'digest/md5'
 require_relative 's3.rb'
 require_relative 'adn.rb'
 require_relative 'blockchain.rb'
@@ -11,11 +12,7 @@ require_relative 'models.rb'
 require_relative 'validator.rb'
 require_relative 'worker.rb'
 
-Worker.start
-Thread.new do
-  Worker.work
-end
-
+# TODO: force https
 enable :sessions
 set :session_secret, ENV['SECRET_KEY'] || 'aaaaa'
 set :server, :thin
@@ -34,10 +31,10 @@ helpers do
 end
 
 before do
+  Worker.host = request.host
+  Blockchain.host = request.host
   @adn = ADN.new session[:token]
-  unless session[:token].nil?
-    @me = @adn.me
-  end
+  @me = @adn.me unless session[:token].nil?
 end
 
 not_found do
@@ -134,5 +131,19 @@ get '/ads/:id/delete' do
   AdRepository.delete(AdRepository.find_by_id params[:id])
   flash[:message] = 'Successfully deleted your ad.'
   redirect '/'
+end
+
+get '/ads/:id/click' do
+  ad = AdRepository.find_by_id params[:id]
+  # Only count clicks from the same IP
+  iphash = Digest::MD5.hexdigest request.ip
+  ad.clicks ||= {}
+  ad.clicks[params[:key]] ||= []
+  clicks = ad.clicks[params[:key]] # [['iphash', Time], ...]
+  if clicks.empty? or clicks.map { |c| c.first != iphash or c.last + 30*60 < Time.now }.all?
+    clicks << [iphash, Time.now]
+    AdRepository.save ad
+  end
+  redirect ad.url
 end
 # }}}
