@@ -13,7 +13,7 @@ require_relative 'validator.rb'
 require_relative 'worker.rb'
 
 class Appvertise < Sinatra::Base
-  set :session_secret, ENV['SECRET_KEY'] || 'aaaaa'
+  set :session_secret, SESSION_SECRET
   set :server, :thin
   set :port, 8080
   set :markdown, :layout_engine => :slim
@@ -26,7 +26,7 @@ class Appvertise < Sinatra::Base
   use Rack::Session::Cookie
   #use Rack::Csrf
   use OmniAuth::Builder do
-    provider :appdotnet, ENV['ADN_ID'], ENV['ADN_SECRET'], :scope => 'write_post'
+    provider :appdotnet, ADN_ID, ADN_SECRET, :scope => 'write_post'
   end
 
   helpers do
@@ -89,7 +89,7 @@ class Appvertise < Sinatra::Base
 
   get '/btc/callback' do
     puts "Blockchain callback: #{params}"
-    if params[:address] == ENV['BTC_ADR']
+    if params[:address] == BTC_ADR
       ad = AdRepository.find_by_id params[:id]
       ad.balance += params[:value].to_f / 100000000
       ad.transactions ||= []

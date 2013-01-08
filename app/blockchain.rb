@@ -1,3 +1,4 @@
+require_relative 'const.rb'
 require 'faraday'
 
 class Blockchain
@@ -7,14 +8,14 @@ class Blockchain
     def new_receive_address(id)
       @api.get('api/receive',
               :method => 'create',
-              :address => ENV['BTC_ADR'],
+              :address => BTC_ADR,
               :callback => "http://#{@host}/btc/callback?id=#{id}").body['input_address']
     end
 
     def pay(amount, adr)
-      @api.get("merchant/#{ENV['BTC_GUID']}/payment",
-              :password => ENV['BTC_PASSWORD'],
-              :second_password => ENV['BTC_PASSWORD2'],
+      @api.get("merchant/#{BTC_GUID}/payment",
+              :password => BTC_PASSWORD,
+              :second_password => BTC_PASSWORD2,
               :to => adr,
               :amount => (amount * 100000000).round).body
     end

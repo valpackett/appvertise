@@ -14,7 +14,7 @@ class Worker
     attr_accessor :host
 
     def initialize
-      @adn = ADN.new ENV['ADN_TOKEN']
+      @adn = ADN.new ADN_TOKEN
     end
   end
 
@@ -25,7 +25,7 @@ class Worker
 
   def self.calculate_paid_through(balance)
     # Time + Numeric adds seconds
-    Time.now + (balance / ENV['BTC_PER_HOUR'].to_f * 60 * 60)
+    Time.now + (balance / BTC_PER_HOUR * 60 * 60)
   end
 
   def self.count_clicks(ad)

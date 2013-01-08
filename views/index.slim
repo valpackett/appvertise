@@ -1,7 +1,7 @@
 .row-fluid
   .span6
     h1 Advertise
-    p One hour costs #{ENV['BTC_PER_HOUR']} BTC.
+    p One hour costs #{BTC_PER_HOUR.round(1)} BTC.
     - if @ads.length > 0
       h2 Your ads
       - @ads.each do |a|
@@ -16,7 +16,7 @@
               - if a.is_posted
                 p The ad has been posted. Thank you for using Appvertise!
               - elsif a.balance > 0.0
-                p The ad has been paid for #{(a.balance / ENV['BTC_PER_HOUR'].to_f * 60).round} minutes!
+                p The ad has been paid for #{(a.balance / BTC_PER_HOUR * 60).round} minutes!
                 p To pay for more time, send money to the Bitcoin address: #{a.btc_adr}
                 p It will go live on #{a.live_time.to_s}
               - else

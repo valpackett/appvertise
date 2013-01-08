@@ -1,12 +1,11 @@
+require_relative 'const.rb'
 require 'curator'
 require 'uri'
 require 'mongo'
 
-mongolab_uri = ENV['MONGOLAB_URI']
-unless mongolab_uri.nil?
-  uri  = URI.parse mongolab_uri
-  conn = Mongo::Connection.from_uri mongolab_uri
-  db   = uri.path.gsub /^\//, ''
+unless MONGOLAB_URI.nil?
+  conn = Mongo::Connection.from_uri MONGOLAB_URI
+  db   = URI.parse(MONGOLAB_URI).path.gsub /^\//, ''
 else
   conn = Mongo::Connection.new
   db   = "appvertise"
@@ -35,7 +34,7 @@ class Ad
     times = AdRepository.all.select { |a|
       !a.is_posted and a.balance > 0.0 and a != self and a.updated_at < self.updated_at
     }.map { |a|
-      a.balance / ENV['BTC_PER_HOUR'].to_f * 60 * 60
+      a.balance / BTC_PER_HOUR * 60 * 60
     }
     unless times.empty?
       base + times.reduce { |a, b| a + b }
