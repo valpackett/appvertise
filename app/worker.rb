@@ -24,9 +24,11 @@ class Worker
   end
 
   def self.count_clicks(ad)
+    clicks = {}
     ad.clicks.each do |k, v|
       clicks[k] = v.values.length
     end
+    clicks
   end
 
   def self.pay_rewards(ad)
