@@ -3,6 +3,7 @@
   h2 An ad network for app.net
   p
     form method="post" action="/auth/appdotnet"
+      == Rack::Csrf.tag env
       button.btn.btn-primary.btn-large type="submit" Log in
 
 .row-fluid

@@ -1,6 +1,7 @@
 require 'sinatra/base'
 require 'sinatra/flash'
 require 'rack/csrf'
+require 'rack/ssl-enforcer'
 require 'omniauth'
 require 'omniauth-appdotnet'
 require 'slim'
@@ -22,9 +23,11 @@ class Appvertise < Sinatra::Base
 
   register Sinatra::Flash
 
-  # TODO: force https
-  use Rack::Session::Cookie
-  #use Rack::Csrf
+  configure :production do
+    use Rack::SslEnforcer
+  end
+  use Rack::Session::Cookie, :secret => settings.session_secret
+  use Rack::Csrf
   use OmniAuth::Builder do
     provider :appdotnet, ADN_ID, ADN_SECRET, :scope => 'write_post'
   end

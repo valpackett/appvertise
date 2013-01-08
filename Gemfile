@@ -3,6 +3,7 @@ source :rubygems
 # serving
 gem "thin"
 gem "rack_csrf"
+gem "rack-ssl-enforcer"
 gem "sinatra"
 gem "sinatra-flash"
 gem "slim"
