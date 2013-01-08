@@ -11,8 +11,8 @@ class ADN
     end
   end
 
-  def method_missing(meth, *args)
-    @api.send meth, *args
+  def method_missing(*args)
+    @api.send *args
   end
 
   def me
@@ -20,6 +20,6 @@ class ADN
   end
 
   def new_post(params)
-    post 'posts', params
+    @api.post 'posts', params
   end
 end

@@ -6,7 +6,7 @@ describe '/ad/:id/click' do
   include Rack::Test::Methods
   IP_HASH = Digest::MD5.hexdigest '127.0.0.1'
 
-  def app; Sinatra::Application; end
+  def app; Appvertise; end
 
   before do
     AdRepository.stub :save => nil, :find_by_id => Ad.new()
