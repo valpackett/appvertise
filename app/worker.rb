@@ -1,4 +1,3 @@
-require 'rufus/scheduler'
 require_relative 'adn.rb'
 require_relative 'models.rb'
 require_relative 'const.rb'
@@ -11,11 +10,7 @@ end
 
 class Worker
   class << self
-    attr_accessor :host
-
-    def initialize
-      @adn = ADN.new ADN_TOKEN
-    end
+    attr_accessor :host, :adn
   end
 
   def self.ann(post)
@@ -78,12 +73,6 @@ class Worker
       post_new_ad
     end
   end
-
-  def self.start
-    scheduler = Rufus::Scheduler.start_new
-    scheduler.every '1m' do
-      work
-    end
-    puts '>> Worker started'
-  end
 end
+
+Worker.adn = ADN.new ADN_TOKEN
