@@ -1,4 +1,5 @@
 require 'sinatra/base'
+require 'patron'
 require 'faraday'
 require 'faraday_middleware'
 require_relative 'const'
@@ -14,7 +15,7 @@ class ADN
       adn.request  :multipart
       adn.request  :json
       adn.response :json, :content_type => /\bjson$/
-      adn.adapter  Faraday.default_adapter
+      adn.adapter  :patron
     end
   end
 

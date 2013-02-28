@@ -1,4 +1,5 @@
 require_relative 'const.rb'
+require 'patron'
 require 'faraday'
 require 'faraday_middleware'
 
@@ -26,5 +27,5 @@ end
 Blockchain.api = Faraday.new(:url => 'https://blockchain.info/') do |b|
   b.request  :url_encoded
   b.response :json, :content_type => /\bjson$/
-  b.adapter  Faraday.default_adapter
+  b.adapter  :patron
 end

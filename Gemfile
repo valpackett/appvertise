@@ -11,6 +11,7 @@ gem "redcarpet"
 gem "builder", "~> 3.0.0"
 
 # requesting
+gem "patron"
 gem "faraday"
 gem "faraday_middleware"
 gem "omniauth"
