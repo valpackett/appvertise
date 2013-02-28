@@ -6,7 +6,6 @@ require 'omniauth'
 require 'omniauth-appdotnet'
 require 'slim'
 require 'digest/md5'
-require_relative 's3.rb'
 require_relative 'adn.rb'
 require_relative 'blockchain.rb'
 require_relative 'models.rb'
@@ -29,12 +28,17 @@ class Appvertise < Sinatra::Base
   use Rack::Session::Cookie, :secret => settings.session_secret
   use Rack::Csrf
   use OmniAuth::Builder do
-    provider :appdotnet, ADN_ID, ADN_SECRET, :scope => 'write_post'
+    provider :appdotnet, ADN_ID, ADN_SECRET, :scope => 'write_post,files'
   end
 
   helpers do
     def total(keys)
       keys.map { |k| k.balance }.reduce { |a, b| a + b }
+    end
+
+    def adn_image_url(id)
+      b = ADN.global.get_file(id).body
+      b['data']['url'] if b['data']
     end
   end
 
@@ -60,13 +64,13 @@ class Appvertise < Sinatra::Base
   end
 
   get '/' do
-    unless @me.nil?
+    if @me.nil?
+      slim :landing
+    else
       @keys = KeyRepository.find_by_owner_adn_id @me['id']
       @ads  =  AdRepository.find_by_owner_adn_id @me['id']
       @balance = total @keys
       slim :index
-    else
-      slim :landing
     end
   end
 
@@ -124,8 +128,14 @@ class Appvertise < Sinatra::Base
   post '/ads' do
     begin
       Validator.valid_ad? params
-      ad = Ad.new :owner_adn_id => @me['id'], :txt => params[:txt], :url => params[:url],
-                  :img => S3.upload(params[:img]), :is_posted => false, :balance => 0.0
+      img = ADN.global.new_file params[:img], :type => IMG_TYPE, :public => true
+      ad = Ad.new :owner_adn_id => @me['id'],
+                  :txt => params[:txt],
+                  :url => params[:url],
+                  :img_id => img.body['data']['id'],
+                  :img_token => img.body['data']['file_token'],
+                  :is_posted => false,
+                  :balance => 0.0
       AdRepository.save ad
       ad.btc_adr = Blockchain.new_receive_address ad.id.to_s
       AdRepository.save ad
@@ -136,21 +146,25 @@ class Appvertise < Sinatra::Base
   end
 
   get '/ads/:id/delete' do
-    AdRepository.delete(AdRepository.find_by_id params[:id])
+    ad = AdRepository.find_by_id params[:id]
+    AdRepository.delete ad
+    ADN.global.delete_file ad.img_id
     flash[:message] = 'Successfully deleted your ad.'
     redirect '/'
   end
 
   get '/ads/:id/click' do
     ad = AdRepository.find_by_id params[:id]
-    # Only count clicks from the same IP
-    iphash = Digest::MD5.hexdigest request.ip
-    ad.clicks ||= {}
-    ad.clicks[params[:key]] ||= []
-    clicks = ad.clicks[params[:key]] # [['iphash', Time], ...]
-    if clicks.empty? or clicks.map { |c| c.first != iphash or c.last + 30*60 < Time.now }.all?
-      clicks << [iphash, Time.now]
-      AdRepository.save ad
+    if params[:key]
+      # Only count clicks from the same IP
+      iphash = Digest::MD5.hexdigest request.ip
+      ad.clicks ||= {}
+      ad.clicks[params[:key]] ||= []
+      clicks = ad.clicks[params[:key]] # [['iphash', Time], ...]
+      if clicks.empty? or clicks.map { |c| c.first != iphash or c.last + 30*60 < Time.now }.all?
+        clicks << [iphash, Time.now]
+        AdRepository.save ad
+      end
     end
     redirect ad.url
   end

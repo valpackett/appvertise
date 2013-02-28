@@ -7,7 +7,7 @@
       - @ads.each do |a|
         .media.clearfix
           a.pull-left href=a.url
-            img.media-object src=a.img alt="image"
+            img.media-object src=adn_image_url(a.img_id) alt="image"
           .media-body
             a href=a.url =a.txt
             br

@@ -1,7 +1,9 @@
 SESSION_SECRET = ENV['SECRET_KEY'] || 'aaaaa'
+HOST = ENV['HOST'] || 'appvertise-it.herokuapp.com'
 
 MONGOLAB_URI = ENV['MONGOLAB_URI']
 
+IMG_TYPE = 'com.floatboth.appvertise.adimage'
 ANN_TYPE = 'com.floatboth.appvertise.ad'
 ADN_ID = ENV['ADN_ID']
 ADN_SECRET = ENV['ADN_SECRET']
@@ -13,7 +15,3 @@ BTC_ADR = ENV['BTC_ADR']
 BTC_GUID = ENV['BTC_GUID']
 BTC_PASSWORD = ENV['BTC_PASSWORD']
 BTC_PASSWORD2 = ENV['BTC_PASSWORD2']
-
-AWS_KEY = ENV['AWS_KEY']
-AWS_SECRET = ENV['AWS_SECRET']
-AWS_BUCKET = ENV['AWS_BUCKET']

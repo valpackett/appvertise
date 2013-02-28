@@ -13,7 +13,6 @@ gem "builder", "~> 3.0.0"
 # requesting
 gem "faraday"
 gem "faraday_middleware"
-gem "aws-sdk"
 gem "omniauth"
 gem "omniauth-appdotnet"
 

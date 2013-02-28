@@ -21,7 +21,7 @@ end
 
 class Ad
   include Curator::Model
-  attr_accessor :id, :adn_id, :owner_adn_id, :btc_adr, :txt, :url, :img,
+  attr_accessor :id, :adn_id, :owner_adn_id, :btc_adr, :txt, :url, :img_id, :img_token,
     :is_posted, :balance, :transactions, :paid_through, :clicks
 
   def live_time

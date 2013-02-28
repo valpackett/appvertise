@@ -1,5 +1,6 @@
 require_relative 'const.rb'
 require 'faraday'
+require 'faraday_middleware'
 
 class Blockchain
   class << self

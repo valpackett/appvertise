@@ -10,7 +10,7 @@ end
 
 class Worker
   class << self
-    attr_accessor :host, :adn
+    attr_accessor :host
   end
 
   def self.ann(post)
@@ -51,11 +51,18 @@ class Worker
     unless ad.nil?
       puts "Posting ad #{ad.id}"
       paid_through = calculate_paid_through ad.balance
-      post = @adn.new_post :text => "#{ad.txt.slice 0, (255-ad.url.length)} #{ad.url}", :annotations => [{
-        :type => ANN_TYPE,
-        :value => { :text => ad.txt, :url => "http://#{@host}/ads/#{ad.id}/click", :img => ad.img, :paid_through => paid_through.to_s }
-      }]
+      url = "http://#{@host || HOST}/ads/#{ad.id.to_s}/click"
+      p url
+      post = ADN.global.new_post :text => ad.txt, :entities => {
+        :links => [ { :pos => 0, :len => ad.txt.length, :url => url } ]
+      }, :annotations => [
+        { :type => ANN_TYPE,
+          :value => { :paid_through => paid_through.to_s } },
+        { :type => 'net.app.core.oembed',
+          :value => { '+net.app.core.file' => { :file_id => ad.img_id, :file_token => ad.img_token, :format => :oembed } } }
+      ]
       ad.paid_through = paid_through
+      p post.body
       ad.adn_id = post.body['data']['id']
       ad.is_posted = true
       AdRepository.save ad
@@ -77,4 +84,3 @@ class Worker
   end
 end
 
-Worker.adn = ADN.new ADN_TOKEN
