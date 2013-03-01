@@ -14,6 +14,7 @@ gem "builder", "~> 3.0.0"
 gem "patron"
 gem "faraday"
 gem "faraday_middleware"
+gem "coinbase"
 gem "omniauth"
 gem "omniauth-appdotnet"
 

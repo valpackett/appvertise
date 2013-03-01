@@ -7,7 +7,7 @@ require 'omniauth-appdotnet'
 require 'slim'
 require 'digest/md5'
 require_relative 'adn.rb'
-require_relative 'blockchain.rb'
+require_relative 'bitcoin.rb'
 require_relative 'models.rb'
 require_relative 'validator.rb'
 require_relative 'worker.rb'
@@ -44,7 +44,6 @@ class Appvertise < Sinatra::Base
 
   before do
     Worker.host = request.host
-    Blockchain.host = request.host
     @adn = ADN.new session[:token]
     @me = @adn.me unless session[:token].nil?
   end
@@ -80,7 +79,7 @@ class Appvertise < Sinatra::Base
 
   post '/fuck_you_pay_me' do
     keys = KeyRepository.find_by_owner_adn_id @me['id']
-    result = Blockchain.pay total(keys), params[:adr]
+    result = Bitcoin.send_money params[:adr], total(keys)
     if result['error'].nil?
       keys.each do |k|
         k.balance = 0.0
@@ -95,12 +94,12 @@ class Appvertise < Sinatra::Base
   end
 
   get '/btc/callback' do
-    puts "Blockchain callback: #{params}"
+    puts "Bitcoin callback: #{params}"
     if params[:address] == BTC_ADR
       ad = AdRepository.find_by_id params[:id]
-      ad.balance += params[:value].to_f / 100000000
+      ad.balance += params[:amount]
       ad.transactions ||= []
-      ad.transactions << params[:transaction_hash]
+      ad.transactions << params[:transaction][:hash]
       AdRepository.save ad
     end
   end
@@ -137,7 +136,7 @@ class Appvertise < Sinatra::Base
                   :is_posted => false,
                   :balance => 0.0
       AdRepository.save ad
-      ad.btc_adr = Blockchain.new_receive_address ad.id.to_s
+      ad.btc_adr = Bitcoin.generate_receive_address "https://#{request.host}/btc/callback?id=#{ad.id.to_s}"
       AdRepository.save ad
     rescue ValidationException => e
       flash[:error] = e.message
