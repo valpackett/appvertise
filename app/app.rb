@@ -27,7 +27,7 @@ class Appvertise < Sinatra::Base
     use Rack::SslEnforcer
   end
   use Rack::Session::Cookie, :secret => settings.session_secret
-  use Rack::Csrf
+  use Rack::Csrf, :skip => ['POST:/btc/callback/.*']
   use OmniAuth::Builder do
     provider :appdotnet, ADN_ID, ADN_SECRET, :scope => 'write_post,files'
   end
