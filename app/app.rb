@@ -93,7 +93,7 @@ class Appvertise < Sinatra::Base
     redirect '/'
   end
 
-  get '/btc/callback' do
+  post '/btc/callback' do
     puts "Bitcoin callback: #{params}"
     if params[:address] == BTC_ADR
       ad = AdRepository.find_by_id params[:id]
