@@ -7,6 +7,7 @@ require 'omniauth-appdotnet'
 require 'slim'
 require 'redcarpet'
 require 'digest/md5'
+require 'multi_json'
 require_relative 'adn.rb'
 require_relative 'bitcoin.rb'
 require_relative 'models.rb'
@@ -95,11 +96,13 @@ class Appvertise < Sinatra::Base
   end
 
   post '/btc/callback/:id' do
-    puts "Bitcoin callback: #{params}"
+    data = MultiJson.load request.env["rack.input"].read, :symbolize_keys => true
+    puts "Bitcoin callback for #{params[:id]}: #{data}"
     ad = AdRepository.find_by_id params[:id]
-    ad.balance += params[:amount]
+    halt 404 unless ad
+    ad.balance += data[:amount]
     ad.transactions ||= []
-    ad.transactions << params[:transaction][:hash]
+    ad.transactions << data[:transaction][:hash] if data[:transaction]
     AdRepository.save ad
   end
 
@@ -145,6 +148,7 @@ class Appvertise < Sinatra::Base
 
   get '/ads/:id/delete' do
     ad = AdRepository.find_by_id params[:id]
+    halt 404 unless ad
     AdRepository.delete ad
     ADN.global.delete_file ad.img_id
     flash[:message] = 'Successfully deleted your ad.'
@@ -153,6 +157,7 @@ class Appvertise < Sinatra::Base
 
   get '/ads/:id/click' do
     ad = AdRepository.find_by_id params[:id]
+    halt 404 unless ad
     if params[:key]
       # Only count clicks from the same IP
       iphash = Digest::MD5.hexdigest request.ip
