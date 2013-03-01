@@ -5,6 +5,7 @@ require 'rack/ssl-enforcer'
 require 'omniauth'
 require 'omniauth-appdotnet'
 require 'slim'
+require 'redcarpet'
 require 'digest/md5'
 require_relative 'adn.rb'
 require_relative 'bitcoin.rb'
@@ -93,15 +94,13 @@ class Appvertise < Sinatra::Base
     redirect '/'
   end
 
-  post '/btc/callback' do
+  post '/btc/callback/:id' do
     puts "Bitcoin callback: #{params}"
-    if params[:address] == BTC_ADR
-      ad = AdRepository.find_by_id params[:id]
-      ad.balance += params[:amount]
-      ad.transactions ||= []
-      ad.transactions << params[:transaction][:hash]
-      AdRepository.save ad
-    end
+    ad = AdRepository.find_by_id params[:id]
+    ad.balance += params[:amount]
+    ad.transactions ||= []
+    ad.transactions << params[:transaction][:hash]
+    AdRepository.save ad
   end
 
   # /keys {{{
@@ -136,7 +135,7 @@ class Appvertise < Sinatra::Base
                   :is_posted => false,
                   :balance => 0.0
       AdRepository.save ad
-      ad.btc_adr = Bitcoin.generate_receive_address "https://#{request.host}/btc/callback?id=#{ad.id.to_s}"
+      ad.btc_adr = Bitcoin.generate_receive_address "https://#{request.host}/btc/callback/#{ad.id.to_s}"
       AdRepository.save ad
     rescue ValidationException => e
       flash[:error] = e.message
