@@ -26,9 +26,8 @@ class Worker
   def self.count_clicks(ad)
     clicks = {}
     if ad.clicks
-      p ad.clicks
       ad.clicks.each do |k, v|
-        clicks[k] = v.values.length
+        clicks[k] = v.length
       end
     end
     clicks
