@@ -35,3 +35,7 @@ group :development, :test do
   gem "timecop"
   gem "shotgun"
 end
+
+group :production do
+  gem "newrelic_rpm"
+end

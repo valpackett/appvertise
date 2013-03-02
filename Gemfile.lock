@@ -52,6 +52,7 @@ GEM
     multi_json (1.5.0)
     multi_xml (0.5.3)
     multipart-post (1.1.5)
+    newrelic_rpm (3.3.2)
     oauth2 (0.8.0)
       faraday (~> 0.8)
       httpauth (~> 0.1)
@@ -126,6 +127,7 @@ DEPENDENCIES
   faraday_middleware
   fastimage
   mongo (= 1.6.0)
+  newrelic_rpm
   oj
   omniauth
   omniauth-appdotnet
